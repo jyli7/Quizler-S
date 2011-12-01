@@ -1,0 +1,8 @@
+{
+  "load"  : "{{{meta-link}}}",
+  "then" : {
+    "find" : ">([\\w]*\\.doc[x]*)",
+	"replace" : "{{{meta-link}}}/$1",
+    "name" : "Link"
+  }
+}

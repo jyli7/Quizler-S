@@ -1,0 +1,9 @@
+{
+  "load"  : "http://quizbowl.stanford.edu/archive/",
+  "then" : {
+    "find" : "([\\w]*)/index.html",
+	"replace" : "http://quizbowl.stanford.edu/archive/$1",
+    "name" : "meta-link",
+	"then" : "url_scraper.json"
+  }
+}
