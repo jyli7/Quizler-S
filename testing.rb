@@ -15,3 +15,4 @@ connect_to_db_and_collection!("questions", "batch_0")
 a = @coll.remove({})
 a = @coll.find({})
 a.each {|d| puts d["question"], "\n", d["answer"], "\n"}
+
