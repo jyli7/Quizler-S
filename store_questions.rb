@@ -9,8 +9,8 @@ def create_db_and_collection!(database_name, collection_name)
   @coll = @db.collection(collection_name)
 end
 
-def form_qa_array!
-  myfile = File.open("data/packets/abt2006-solor1.txt")
+def form_qa_array!(file)
+  myfile = File.open(file)
   
   @qa_array = []
   question = ""
@@ -40,9 +40,9 @@ def add_questions_to_database!
 end
 
 connect_to_db!
-create_db_and_collection!("questions_test", "batch_0")
-form_qa_array!
-add_questions_to_database!
 
-@a = @coll.find({})
-@a.each {|d| puts d["question"], "\n", d["answer"], "\n"}
+(1..16).each do |num|
+  create_db_and_collection!("questions", "batch_0")
+  form_qa_array!("data/packets/abt2006-solor#{num}.txt")
+  add_questions_to_database!
+end
