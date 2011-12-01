@@ -29,7 +29,13 @@ def form_qa_array!(file)
       end
     end
     if line.include? "ANS"
-      answer = line.chomp.to_s
+      begin
+        answer_with_prefix = line.chomp.to_s
+        semicolon_location = answer_with_prefix.index(":")
+        answer = answer_with_prefix[(semicolon_location + 1)..-1].to_s.strip!
+      rescue
+        next
+      end
       @qa_array << [question, answer]
     end
   end
@@ -38,8 +44,9 @@ end
 def add_questions_to_database!
   @qa_array.each do |qa_pair|
     begin
-      doc = {"question" => "#{qa_pair[0]}", "answer" => "#{qa_pair[1]}"}
+      doc = {"question" => "#{qa_pair[0]}", "answer" => "#{qa_pair[1]}", "num" => "#{@question_count}"}
       @coll.insert(doc)
+      @question_count += 1
     rescue
       next
     end
@@ -47,8 +54,12 @@ def add_questions_to_database!
 end
 
 connect_to_db!
+@question_count = 0
 (1..16).each do |num|
   create_db_and_collection!("questions", "batch_0")
   form_qa_array!("data/packets/abt2006-solor#{num}.txt")
   add_questions_to_database!
 end
+
+total = @coll.count
+puts "#{total} questions stored!"
