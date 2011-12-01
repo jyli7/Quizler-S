@@ -19,7 +19,11 @@ def form_qa_array!(file)
     if line[0].to_i != 0
       question_with_numbers = line.chomp.to_s
       #get rid of the question number
-      number_and_spaces = question_with_numbers.match /^[\d]*\.[\s]*/
+      begin
+        number_and_spaces = question_with_numbers.match /^[\d]*\.[\s]*/
+      rescue
+        next
+      end
       if number_and_spaces
         question = question_with_numbers[(0 + number_and_spaces.to_s.length)..-1]
       end
@@ -32,15 +36,17 @@ def form_qa_array!(file)
 end
 
 def add_questions_to_database!
-  @coll.remove({})
   @qa_array.each do |qa_pair|
-   doc = {"question" => "#{qa_pair[0]}", "answer" => "#{qa_pair[1]}"}
-   @coll.insert(doc)
+    begin
+      doc = {"question" => "#{qa_pair[0]}", "answer" => "#{qa_pair[1]}"}
+      @coll.insert(doc)
+    rescue
+      next
+    end
   end
 end
 
 connect_to_db!
-
 (1..16).each do |num|
   create_db_and_collection!("questions", "batch_0")
   form_qa_array!("data/packets/abt2006-solor#{num}.txt")
