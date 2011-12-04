@@ -14,6 +14,8 @@ def truncate_expression(expression, ending)
     stop_pt = expression.index(ending)
     expression = expression[0...stop_pt]
     return expression
+  else
+    return nil
   end
 end
 
@@ -21,14 +23,11 @@ def check_answer(input, answer)
   input = input.downcase
   full_answer = answer
   
-  possible_endings = ["(accept", "[accept", "[prompt", "(prompt"]
+  possible_endings = ["(accept", "[accept", "[prompt", "(prompt", "(also acceptable"]
   
   for ending in possible_endings
-    puts ending
-    truncate_expression(answer, ending)
+    answer = truncate_expression(answer, ending) if truncate_expression(answer, ending) != nil
   end
-
-  puts answer  
 
   #set up threshold and check match against that threshold
   threshold = 0.5
@@ -53,13 +52,12 @@ def check_answer(input, answer)
     puts "The full answer was: #{full_answer}"
     return correct
   else
-    puts "Sorry, incorrect."
+    puts "\nSorry, incorrect."
     puts "The answer was: #{full_answer}"
     return correct
   end
 end
 
-  
 def read_out_loud(to_read, sleep_time)
   to_read = to_read.split(" ")
   stop = false
@@ -80,21 +78,28 @@ def read_out_loud(to_read, sleep_time)
     print c, " "    
     sleep(sleep_time)
   end
-  finished_reading = true
+  listen_for_buzz.kill
   sleep(sleep_time)
   print "\n"
 end
+
+def question_correct(questions_correct)
+  questions_correct = questions_correct += 1
+
+end
+
 
 connect_to_db!
 connect_to_db_and_collection!("questions", "batch_0")
 coll_total = @coll.count()
 
 #Start user interaction here
+questions_correct = 0 
 questions_asked = 0
-questions_right = 0
 while true
   puts "---------"
   puts "QUESTION:"
+  question_answered_correctly = false
   @qa_pair = @coll.find("num" => "#{rand(coll_total).to_s}")
   @qa_pair.each do |row|
     question = row["question"]
@@ -108,12 +113,24 @@ while true
     
     #keep track of score
     if user_correct
-      questions_right += 1
+      questions_correct += 1
+      question_answered_correctly = true
     end
     questions_asked += 1
-    print questions_right.to_s, "/", questions_asked.to_s,  " answered correctly so far", "\n"
   end
-  print "Hit [enter] to continue"
-  gets
+  print "Score: ", questions_correct.to_s, "/", questions_asked.to_s,  " answered correctly so far", "\n"  
+  print "Hit [enter] to continue (or enter 'r' to reverse the verdict): "
+  if gets.chomp! == "r"
+    #reverse_verdict
+    if question_answered_correctly == true
+      questions_correct -= 1
+      puts "\nVerdict reversed! Point deducted."
+    else
+      questions_correct += 1
+      puts "\nVerdict reversed! Point added."
+    end
+    print "Score update: ", questions_correct.to_s, "/", questions_asked.to_s,  " answered correctly so far", "\n"
+    print "Hit [enter] to continue"
+    gets
+  end
 end
-
