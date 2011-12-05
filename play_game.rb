@@ -85,9 +85,7 @@ end
 
 def question_correct(questions_correct)
   questions_correct = questions_correct += 1
-
 end
-
 
 connect_to_db!
 connect_to_db_and_collection!("questions", "batch_0")
@@ -104,7 +102,7 @@ while true
   @qa_pair.each do |row|
     question = row["question"]
     answer = row["answer"]
-    read_out_loud(question, 0.001)
+    read_out_loud(question, 0.25)
     print "What is your answer? "
     #following line is for debugging
     # print "The answer is: #{answer}", "\n"
